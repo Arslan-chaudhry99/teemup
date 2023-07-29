@@ -37,7 +37,7 @@ export const users = [
     picturePath: "p3.jpeg",
     friends: [],
     location: "New York, CA",
-    occupation: "Degenerate",
+    occupation: "Doctor",
     viewedProfile: 12351,
     impressions: 55555,
     createdAt: 1595589072,
