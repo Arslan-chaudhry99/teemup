@@ -24,6 +24,9 @@ import WidgetWrapper from "components/WidgetWrapper";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setPosts } from "state";
+import ErrorWrapper from "Utility/ErrorWrapper";
+import remoteMethod from "Utility/webService";
+import { routes } from "Utility/Contants";
 
 const MyPostWidget = ({ picturePath }) => {
   const dispatch = useDispatch();
@@ -37,7 +40,7 @@ const MyPostWidget = ({ picturePath }) => {
   const mediumMain = palette.neutral.mediumMain;
   const medium = palette.neutral.medium;
 
-  const handlePost = async () => {
+  const handlePost = ErrorWrapper(async () => {
     const formData = new FormData();
     formData.append("userId", _id);
     formData.append("description", post);
@@ -46,16 +49,18 @@ const MyPostWidget = ({ picturePath }) => {
       formData.append("picturePath", image.name);
     }
 
-    const response = await fetch(`http://localhost:3001/posts`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-      body: formData,
+    const response = await remoteMethod({
+      url: `${routes.getPosts_route}`,
+      type: "POST",
+      token,
+      data: formData,
+      files: true,
     });
-    const posts = await response.json();
-    dispatch(setPosts({ posts }));
+
+    dispatch(setPosts({ response }));
     setImage(null);
     setPost("");
-  };
+  });
 
   return (
     <WidgetWrapper>

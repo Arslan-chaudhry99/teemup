@@ -11,10 +11,14 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import { Formik } from "formik";
 import * as yup from "yup";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setLogin } from "state";
+import { getProfileInfo } from "../../state/Profile";
 import Dropzone from "react-dropzone";
 import FlexBetween from "components/FlexBetween";
+import { routes } from "../../Utility/Contants";
+import remoteMethod from "Utility/webService";
+import ErrorWrapper from "Utility/ErrorWrapper";
 
 const registerSchema = yup.object().shape({
   firstName: yup.string().required("required"),
@@ -54,48 +58,49 @@ const Form = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const isLogin = pageType === "login";
   const isRegister = pageType === "register";
+  const token = useSelector((state) => state.token);
 
-  const register = async (values, onSubmitProps) => {
+  const register = ErrorWrapper(async (values, onSubmitProps) => {
     // this allows us to send form info with image
     const formData = new FormData();
     for (let value in values) {
       formData.append(value, values[value]);
     }
     formData.append("picturePath", values.picture.name);
-
-    const savedUserResponse = await fetch(
-      "http://localhost:3001/auth/register",
-      {
-        method: "POST",
-        body: formData,
-      }
-    );
-    const savedUser = await savedUserResponse.json();
+    const savedUserResponse = await remoteMethod({
+      data: formData,
+      url: routes.signup_route,
+      type: "POST",
+      files: true,
+      token,
+    });
     onSubmitProps.resetForm();
 
-    if (savedUser) {
+    if (savedUserResponse) {
       setPageType("login");
     }
-  };
+  });
 
-  const login = async (values, onSubmitProps) => {
-    const loggedInResponse = await fetch("http://localhost:3001/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values),
+  const login = ErrorWrapper(async (values, onSubmitProps) => {
+    const loggedInResponse = await remoteMethod({
+      data: values,
+      url: routes.login_route,
+      type: "POST",
+      token
     });
-    const loggedIn = await loggedInResponse.json();
+
     onSubmitProps.resetForm();
-    if (loggedIn) {
+    if (loggedInResponse?.data) {
       dispatch(
         setLogin({
-          user: loggedIn.user,
-          token: loggedIn.token,
+          user: loggedInResponse?.data?.user,
+          token: loggedInResponse?.data?.token,
         })
       );
+
       navigate("/home");
     }
-  };
+  });
 
   const handleFormSubmit = async (values, onSubmitProps) => {
     if (isLogin) await login(values, onSubmitProps);

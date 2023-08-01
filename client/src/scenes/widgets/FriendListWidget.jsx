@@ -4,6 +4,9 @@ import WidgetWrapper from "components/WidgetWrapper";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setFriends } from "state";
+import { routes } from "Utility/Contants";
+import ErrorWrapper from "Utility/ErrorWrapper";
+import remoteMethod from "Utility/webService";
 
 const FriendListWidget = ({ userId }) => {
   const dispatch = useDispatch();
@@ -11,7 +14,7 @@ const FriendListWidget = ({ userId }) => {
   const token = useSelector((state) => state.token);
   const friends = useSelector((state) => state.user.friends);
 
-  const getFriends = async () => {
+  const getFriends = ErrorWrapper(async () => {
     const response = await fetch(
       `http://localhost:3001/users/${userId}/friends`,
       {
@@ -21,7 +24,7 @@ const FriendListWidget = ({ userId }) => {
     );
     const data = await response.json();
     dispatch(setFriends({ friends: data }));
-  };
+  });
 
   useEffect(() => {
     getFriends();
