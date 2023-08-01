@@ -1,7 +1,7 @@
 
 # FullStack Social Media App
 
-Simplistic example of a social media application using MongoDB, Express.js, Node.js and React. The user is able to register an account and with API, , login, post, like, comment, add friends and dm other users. This application uses data tables to respond with other sets to make this application functional.
+Simplistic example of a social media application using MongoDB, Express.js, Node.js and React. The user is able to register an account and with the API, login, post, like, comment, add friends and dm other users. This application uses data tables to respond with other sets to make this application functional.
 
 
 ## Installation
